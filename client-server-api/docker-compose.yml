@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  sqlite:
+    image: alpine:latest
+    volumes:
+      - ./data:/data
+    command: tail -f /dev/null
+    environment:
+      - TZ=UTC 
