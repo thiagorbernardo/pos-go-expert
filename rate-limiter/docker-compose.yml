@@ -4,22 +4,47 @@ services:
     image: redis:7-alpine
     ports:
       - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
   app:
     build: .
     environment:
+      # Server Configuration
       - PORT=8080
-      - RATE_LIMIT_MODE=auto
-      - RATE_LIMIT_RPS=2
-      - RATE_LIMIT_BLOCK_SECONDS=10
-      - RATE_LIMIT_TOKEN_HEADER=API_KEY
+      
+      # Rate Limiting Configuration
+      - RATE_LIMIT_MODE=auto                    # Options: auto, ip, token
+      - RATE_LIMIT_RPS=2                        # Default requests per second (low for testing)
+      - RATE_LIMIT_BLOCK_SECONDS=10             # Default block duration in seconds (short for testing)
+      - RATE_LIMIT_TOKEN_HEADER=API_KEY         # Header name for access tokens
+      
+      # Token Overrides (comma-separated: token:limit:blockSeconds)
+      - RATE_LIMIT_TOKEN_OVERRIDES=abc123:5:10,premium:10:20,free:3:15
+      
+      # Redis Configuration
       - REDIS_ADDR=redis:6379
       - REDIS_DB=0
       - REDIS_PASSWORD=
-      # Example overrides
-      - RATE_LIMIT_TOKEN_OVERRIDES=abc123:5:10
+      
+      # Development/Testing Overrides (uncomment to test different scenarios)
+      # - RATE_LIMIT_MODE=ip                    # IP-only mode
+      # - RATE_LIMIT_MODE=token                 # Token-only mode
+      # - RATE_LIMIT_RPS=1                      # Very low limit for quick testing
+      # - RATE_LIMIT_BLOCK_SECONDS=5            # Very short block for quick testing
     ports:
       - "8080:8080"
     depends_on:
-      - redis
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
 
 
