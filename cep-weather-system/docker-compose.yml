@@ -1,0 +1,47 @@
+version: '3.8'
+services:
+  service-a:
+    build: ./service-a
+    environment:
+      - PORT=${SERVICE_A_PORT:-8081}
+      - SERVICE_B_URL=http://service-b:${SERVICE_B_PORT:-8080}
+      - ZIPKIN_URL=${ZIPKIN_URL:-http://zipkin:9411/api/v2/spans}
+    ports:
+      - "${SERVICE_A_PORT:-8081}:8081"
+    depends_on:
+      - service-b
+      - zipkin
+
+
+  service-b:
+    build: ./service-b
+    environment:
+      - PORT=${SERVICE_B_PORT:-8080}
+      - WEATHER_API_KEY=${WEATHER_API_KEY}
+      - ZIPKIN_URL=${ZIPKIN_URL:-http://zipkin:9411/api/v2/spans}
+    ports:
+      - "${SERVICE_B_PORT:-8080}:8080"
+    depends_on:
+      - zipkin
+
+
+  zipkin:
+    image: openzipkin/zipkin:2.23.16
+    ports:
+      - "9411:9411"
+    environment:
+      - STORAGE_TYPE=mem
+      - STORAGE_TYPE_MEM_MAX_SPANS=500000
+      - STORAGE_TYPE_MEM_SEARCH_ENABLED=true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9411/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+
+networks:
+  default:
+    name: cep-weather-network
+
+
