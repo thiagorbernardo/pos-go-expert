@@ -67,7 +67,7 @@ func main() {
 		port = os.Getenv("SERVICE_B_PORT")
 	}
 	if port == "" {
-		port = "8080"
+		port = "8081"
 	}
 	log.Printf("service-b listening on :%s", port)
 	if err := r.Run(":" + port); err != nil {

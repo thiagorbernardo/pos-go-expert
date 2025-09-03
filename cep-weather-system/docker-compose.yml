@@ -3,11 +3,11 @@ services:
   service-a:
     build: ./service-a
     environment:
-      - PORT=${SERVICE_A_PORT:-8081}
-      - SERVICE_B_URL=http://service-b:${SERVICE_B_PORT:-8080}
+      - PORT=${SERVICE_A_PORT:-8080}
+      - SERVICE_B_URL=http://service-b:${SERVICE_B_PORT:-8081}
       - ZIPKIN_URL=${ZIPKIN_URL:-http://zipkin:9411/api/v2/spans}
     ports:
-      - "${SERVICE_A_PORT:-8081}:8081"
+      - "${SERVICE_A_PORT:-8080}:8080"
     depends_on:
       - service-b
       - zipkin
@@ -16,11 +16,11 @@ services:
   service-b:
     build: ./service-b
     environment:
-      - PORT=${SERVICE_B_PORT:-8080}
+      - PORT=${SERVICE_B_PORT:-8081}
       - WEATHER_API_KEY=${WEATHER_API_KEY}
       - ZIPKIN_URL=${ZIPKIN_URL:-http://zipkin:9411/api/v2/spans}
     ports:
-      - "${SERVICE_B_PORT:-8080}:8080"
+      - "${SERVICE_B_PORT:-8081}:8081"
     depends_on:
       - zipkin
 

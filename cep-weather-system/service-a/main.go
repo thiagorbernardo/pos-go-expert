@@ -53,7 +53,7 @@ func main() {
 	if port == "" {
 		port = os.Getenv("SERVICE_A_PORT")
 		if port == "" {
-			port = "8081"
+			port = "8080"
 		}
 	}
 	log.Printf("service-a listening on :%s", port)
@@ -136,7 +136,7 @@ func forwardToServiceB(ctx context.Context, cep string) (*WeatherResponse, error
 	defer span.End()
 	base := os.Getenv("SERVICE_B_URL")
 	if base == "" {
-		base = "http://localhost:8080"
+		base = "http://localhost:8081"
 	}
 	url := fmt.Sprintf("%s/weather/%s", base, cep)
 	span.SetAttributes(attribute.String("service_b_url", url))
